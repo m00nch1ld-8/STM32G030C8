@@ -1,0 +1,41 @@
+#define PHS6A_SUBWOOFER
+
+
+#ifdef PHS6A_SUBWOOFER
+	#define SOFTWARE_VERSION		10
+
+	#define SOUND_INPUT_PCM9211
+	#define SOUND_OUTPUT_TAS5548
+	
+	// #define SMOOTH_POLARITY_EN
+	
+	#define USE_ROTARY_ENCODER
+	#ifdef USE_ROTARY_ENCODER
+		#define TIMER_ENCODER_CODE
+		// #define USE_OLD_ENCODER_CODE
+		// #define NEW_ENCODER_DIFF_CODE
+	#endif
+
+	#define USE_ADC_KEY
+	#define USE_SMARTLED_EN
+	#ifdef USE_SMARTLED_EN
+		// #define USE_FFT_SIGNAL_PROCESS
+		// #define USE_WS2812_PWM
+		#define USE_WS2812_SPI
+	#endif
+
+//	#define USE_SOUND_SHIFT_EN
+	#ifndef USE_SOUND_SHIFT_EN
+		#define USE_SOUND_POLARITY_EN
+	#endif
+
+	#define USE_BLE_SPP_EN
+
+	#define USE_BREAKPOINT_EN
+
+	#define SETTING_AUTRAN
+// #define USE_SYSTEM_STANDBY
+
+
+#endif  //PHS6A_SUBWOOFER
+

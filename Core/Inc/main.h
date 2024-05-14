@@ -41,7 +41,7 @@ extern "C" {
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
-
+extern TIM_HandleTypeDef htim14;
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/
@@ -75,12 +75,16 @@ void Error_Handler(void);
 #define LED_B_GPIO_Port GPIOB
 #define PA_FAULT_Pin GPIO_PIN_15
 #define PA_FAULT_GPIO_Port GPIOB
+#define PA_FAULT_EXTI_IRQn EXTI4_15_IRQn
 #define PA_OTW_Pin GPIO_PIN_8
 #define PA_OTW_GPIO_Port GPIOA
+#define PA_OTW_EXTI_IRQn EXTI4_15_IRQn
 #define PA_CLIP_Pin GPIO_PIN_9
 #define PA_CLIP_GPIO_Port GPIOA
+#define PA_CLIP_EXTI_IRQn EXTI4_15_IRQn
 #define IRM_Pin GPIO_PIN_6
 #define IRM_GPIO_Port GPIOC
+#define IRM_EXTI_IRQn EXTI4_15_IRQn
 #define I2C_SCL_Pin GPIO_PIN_11
 #define I2C_SCL_GPIO_Port GPIOA
 #define I2C_SDA_Pin GPIO_PIN_12
