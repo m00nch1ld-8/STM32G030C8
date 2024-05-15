@@ -6,6 +6,9 @@
 #ifdef USE_ADC_KEY
 #include "adc_key.h"
 #endif
+#ifdef USE_IR_KEY
+#include "remote.h"
+#endif
 
 
 
@@ -62,6 +65,10 @@ void inputProcess_init(void)
 	adcKey_init();
 #endif
 
+#ifdef USE_IR_KEY
+	remote_init();
+#endif
+
 	inputProcess_resetVariable();
 }
 
@@ -84,6 +91,14 @@ void inputProcess_scan(void)
 	if(adcKey_task() == 1)
 	{
 		bInput_newkey = adcKey_getReceived_code();
+		fInput_key = 1;
+	}
+#endif
+
+#ifdef USE_IR_KEY
+	if(remote_task() == 1)
+	{
+		bInput_newkey = remote_getReceived_code();
 		fInput_key = 1;
 	}
 #endif

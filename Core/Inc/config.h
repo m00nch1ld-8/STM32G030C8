@@ -17,6 +17,7 @@
 	#endif
 
 	#define USE_ADC_KEY
+	#define USE_IR_KEY
 	#define USE_SMARTLED_EN
 	#ifdef USE_SMARTLED_EN
 		// #define USE_FFT_SIGNAL_PROCESS
@@ -24,7 +25,7 @@
 		#define USE_WS2812_SPI
 	#endif
 
-//	#define USE_SOUND_SHIFT_EN
+	#define USE_SOUND_SHIFT_EN
 	#ifndef USE_SOUND_SHIFT_EN
 		#define USE_SOUND_POLARITY_EN
 	#endif

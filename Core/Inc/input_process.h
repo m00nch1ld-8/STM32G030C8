@@ -54,7 +54,7 @@ extern const uint8_t input_keytofunction[];
 #define fInput_from_AdcKey								bInput_flag.bit_access.bit_3
 #define fInput_center_Level								bInput_flag.bit_access.bit_4
 #define fInput_center_cutoff							bInput_flag.bit_access.bit_5
-#define fInput_center_phase							bInput_flag.bit_access.bit_6
+#define fInput_center_phase								bInput_flag.bit_access.bit_6
 
 // definisi state keypress
 #define cINPUT_KEY_NEEDTORELEASE						0

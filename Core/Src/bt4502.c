@@ -18,7 +18,6 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
 #include "bt4502.h"
 #include "math.h"
 #include "string.h"
@@ -40,14 +39,11 @@ uint8_t bBLE_recv_buffer[0xFF];
 uint8_t bBLE_recv_final[0xFF];
 uint8_t bBLE_recv_temp[2];
 uint8_t bBLE_send_buffer[0xFF];
-char asdf[0xFF];
-uint8_t bBLE_connect = 0;	//0 : disconnect, 1 : connect
 uint8_t bBLE_recv_len = 0;
 uint8_t bBLE_SPP_len = 0;
 uint8_t bBLE_UART_len = 0;
 uint8_t bBLE_temp_buffer[0xFF];
-uint8_t bBLE_SPP_Flag = 0;
-uint8_t bBLE_UART_Flag = 0;
+sBIT_BYTE_ACCESS bBLE_flag;
 
 
 /* Private function prototypes -----------------------------------------------*/
@@ -63,28 +59,28 @@ GPIO_PinState bt4502_read_int(void)
 
 uint8_t bt4502_recv_check(void)
 {
-	if(bBLE_SPP_Flag)
+	if(fBLE_SPP_Flag)
 	{
 		if((bBLE_recv_temp[0] == '\n') && (bBLE_recv_len != 0))
 		{
 			memcpy(bBLE_recv_final, bBLE_recv_buffer, bBLE_recv_len);
 			bBLE_SPP_len = bBLE_recv_len;
 			bBLE_recv_len = 0;
-			bBLE_SPP_Flag = 0;
-			bBLE_UART_Flag = 0;
+			fBLE_SPP_Flag = 0;
+			fBLE_UART_Flag = 0;
 			memset(bBLE_recv_buffer, 0, sizeof(bBLE_recv_buffer));
 			return 2;
 		}
 	}
-	else if(bBLE_UART_Flag)
+	else if(fBLE_UART_Flag)
 	{
-		if((bBLE_recv_temp[0] == '\0') && (bBLE_recv_len != 0))
+		if((bBLE_recv_temp[0] == '\n') && (bBLE_recv_len != 0))
 		{
 			memcpy(bBLE_recv_final, bBLE_recv_buffer, bBLE_recv_len);
 			bBLE_UART_len = bBLE_recv_len;
 			bBLE_recv_len = 0;
-			bBLE_SPP_Flag = 0;
-			bBLE_UART_Flag = 0;
+			fBLE_SPP_Flag = 0;
+			fBLE_UART_Flag = 0;
 			memset(bBLE_recv_buffer, 0, sizeof(bBLE_recv_buffer));
 			return 1;
 		}
@@ -97,12 +93,12 @@ void bt4502_parse_reply(void)
 	if((bBLE_recv_final[4] == 'C') && (bBLE_recv_final[5] == 'O') && (bBLE_recv_final[6] == 'N'))
 	{
 		//BLE Connect
-		bBLE_connect = 1;
+		fBLE_connect = 1;
 	}
 	else if((bBLE_recv_final[4] == 'D') && (bBLE_recv_final[5] == 'I') && (bBLE_recv_final[6] == 'S'))
 	{
 		//BLE Disconnect
-		bBLE_connect = 0;
+		fBLE_connect = 0;
 	}
 	else if((bBLE_recv_final[4] == 'O') && (bBLE_recv_final[5] == 'K'))
 	{
@@ -169,25 +165,19 @@ void bt4502_test_send(uint8_t buff)
 
 void bt4502_init(void)
 {
+	uint8_t waitReplyCount = 10;
 	char name[25] = "PHS MBUH";
 	bBLE_recv_buffer[0] = 'B';
 	HAL_UART_Receive_IT(&huart1, bBLE_recv_temp, 1);
+	bt4502_get_moduleName();
+	while(fBLE_wait_reply)
+	{
+		if(waitReplyCount)	waitReplyCount--;
+		HAL_Delay(100);
+	}
 	bt4502_set_moduleName(name);
 //	bt4502_set_connectionInterval(200);
 	bt4502_pdn_low();	//start advertisement
-	bBLE_temp_buffer[0] = 'a';
-	bBLE_temp_buffer[1] = 'b';
-	bBLE_temp_buffer[2] = 'c';
-	bBLE_temp_buffer[3] = 'd';
-	bBLE_temp_buffer[4] = 'e';
-	bBLE_temp_buffer[5] = 'f';
-	bBLE_temp_buffer[6] = 'g';
-	bBLE_temp_buffer[7] = 'h';
-	bBLE_temp_buffer[8] = 'i';
-	bBLE_temp_buffer[9] = 'j';
-	bBLE_temp_buffer[10] = 'k';
-	bBLE_temp_buffer[11] = 'l';
-	bBLE_temp_buffer[12] = 'm';
 }
 
 void bt4502_deinit(void)
@@ -253,23 +243,20 @@ void bt4502_set_connectionInterval(uint16_t intr)
 
 void bt4502_get_moduleName(void)
 {
+	fBLE_wait_reply = 1;
 	bBLE_send_buffer[4] = 'N';
 	bBLE_send_buffer[5] = 'A';
 	bBLE_send_buffer[6] = 'M';
 	bBLE_send_buffer[7] = '-';
 	bBLE_send_buffer[8] = '?';
-	bt4502_sendAT(9);
+	bBLE_send_buffer[9] = 0x0D;
+	bBLE_send_buffer[10] = 0x0A;
+	bBLE_send_buffer[11] = 0x00;
+	bt4502_sendAT(12);
 }
 
 void bt4502_set_moduleName(char name[25])
 {
-//	memset(asdf, 0, sizeof(asdf));
-//	strcat(asdf, "TTM:REN-");
-//	strcat(asdf, name);
-//	strcat(asdf, 0x0D);
-//	strcat(asdf, 0x0A);
-//	strcat(asdf, '\0');
-//	bt4502_sendAT(strlen(asdf));
 	bBLE_send_buffer[4] = 'R';
 	bBLE_send_buffer[5] = 'E';
 	bBLE_send_buffer[6] = 'N';

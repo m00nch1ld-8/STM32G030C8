@@ -1,22 +1,22 @@
 /**
-  ******************************************************************************
-  * @file			: adau_17x1.h
-  * @brief			: Header for adau_17x1.c file.
-  *					  This file contains the common defines of the application.
-  ******************************************************************************
-  * @attention
-  *
-  * @author         : BeeHa
-  * @version		: v1.0.0
-  * @date created	: 2024-04-16
-  *
-  * @author modified:
-  * @date modified	:
-  *
-  * @copyright		: (C) 2024, PT. Hartono Istana Teknologi. All rights reserved.
-  *
-  ******************************************************************************
-  */
+	******************************************************************************
+	* @file			: adau_17x1.h
+	* @brief			: Header for adau_17x1.c file.
+	*					  This file contains the common defines of the application.
+	******************************************************************************
+	* @attention
+	*
+	* @author         : BeeHa
+	* @version		: v1.0.0
+	* @date created	: 2024-04-16
+	*
+	* @author modified:
+	* @date modified	:
+	*
+	* @copyright		: (C) 2024, PT. Hartono Istana Teknologi. All rights reserved.
+	*
+	******************************************************************************
+	*/
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef INC_ADAU_17X1_H_

@@ -188,6 +188,7 @@ typedef struct __I2C_HandleTypeDef
   I2C_InitTypeDef            Init;           /*!< I2C communication parameters              */
 
   uint8_t                    *pBuffPtr;      /*!< Pointer to I2C transfer buffer            */
+  const uint8_t              *pBuffConstPtr; /*!< Pointer to I2C transfer const buffer      */
 
   uint16_t                   XferSize;       /*!< I2C transfer size                         */
 
@@ -631,6 +632,8 @@ HAL_StatusTypeDef HAL_I2C_Slave_Receive(I2C_HandleTypeDef *hi2c, uint8_t *pData,
                                         uint32_t Timeout);
 HAL_StatusTypeDef HAL_I2C_Mem_Write(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint16_t MemAddress,
                                     uint16_t MemAddSize, uint8_t *pData, uint16_t Size, uint32_t Timeout);
+HAL_StatusTypeDef HAL_I2C_Mem_Write_Const(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint16_t MemAddress,
+                                    uint16_t MemAddSize, const uint8_t *pData, uint16_t Size, uint32_t Timeout);
 HAL_StatusTypeDef HAL_I2C_Mem_Read(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint16_t MemAddress,
                                    uint16_t MemAddSize, uint8_t *pData, uint16_t Size, uint32_t Timeout);
 HAL_StatusTypeDef HAL_I2C_IsDeviceReady(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint32_t Trials,

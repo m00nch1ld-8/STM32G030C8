@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "adau_17x1.h": "c",
+        "main.h": "c",
+        "bt4502.h": "c"
+    }
+}

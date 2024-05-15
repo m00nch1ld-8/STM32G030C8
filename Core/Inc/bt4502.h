@@ -1,22 +1,22 @@
 /**
-  ******************************************************************************
-  * @file			: bt452.h
-  * @brief			: Header for bt4502.c file.
-  *					  This file contains the common defines of the application.
-  ******************************************************************************
-  * @attention
-  *
-  * @author         : BeeHa
-  * @version		: v1.0.0
-  * @date created	: 2024-03-25
-  *
-  * @author modified:
-  * @date modified	:
-  *
-  * @copyright		: (C) 2024, PT. Hartono Istana Teknologi. All rights reserved.
-  *
-  ******************************************************************************
-  */
+	******************************************************************************
+	* @file			: bt452.h
+	* @brief			: Header for bt4502.c file.
+	*					  This file contains the common defines of the application.
+	******************************************************************************
+	* @attention
+	*
+	* @author         : BeeHa
+	* @version		: v1.0.0
+	* @date created	: 2024-03-25
+	*
+	* @author modified:
+	* @date modified	:
+	*
+	* @copyright		: (C) 2024, PT. Hartono Istana Teknologi. All rights reserved.
+	*
+	******************************************************************************
+	*/
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef INC_BT4502_H_
@@ -29,17 +29,24 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "system.h"
 #include "main.h"
+#include "type.h"
 
 /* Exported types ------------------------------------------------------------*/
 
 
 /* Exported constants --------------------------------------------------------*/
-extern uint8_t bBLE_SPP_Flag;
-extern uint8_t bBLE_UART_Flag;
-
 extern uint8_t bBLE_recv_buffer[0xFF];
 extern uint8_t bBLE_recv_temp[2];
 extern uint8_t bBLE_recv_len;
+extern sBIT_BYTE_ACCESS bBLE_flag;
+
+#define fBLE_connect									bBLE_flag.bit_access.bit_0		//0 : disconnect, 1 : connect
+#define fBLE_wait_reply									bBLE_flag.bit_access.bit_1
+#define fBLE_SPP_Flag									bBLE_flag.bit_access.bit_2
+#define fBLE_UART_Flag									bBLE_flag.bit_access.bit_3
+// #define fInput_center_Level								bBLE_flag.bit_access.bit_4
+// #define fInput_center_cutoff							bBLE_flag.bit_access.bit_5
+// #define fInput_center_phase								bBLE_flag.bit_access.bit_6
 
 
 /* Exported macro ------------------------------------------------------------*/

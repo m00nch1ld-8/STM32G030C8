@@ -25,6 +25,7 @@
 #include "system.h"
 #include "input_process.h"
 #include "bt4502.h"
+#include "remote.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -577,7 +578,7 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : IRM_Pin */
   GPIO_InitStruct.Pin = IRM_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(IRM_GPIO_Port, &GPIO_InitStruct);
 
@@ -626,6 +627,53 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin)
+{
+  if(GPIO_Pin == GPIO_PIN_6)
+  {
+    if (__HAL_TIM_GET_COUNTER(&htim16) > 8000)
+    {
+      bRemote_temp = 0;
+      bBitIndex = 0;
+      bAddrHigh = 0xFF;
+      bAddrLow = 0xFF;
+      bCmdHigh = 0xFF;
+      bCmdLow = 0xFF;
+    }
+    else if (__HAL_TIM_GET_COUNTER(&htim16) > 1700)
+    {
+      bRemote_temp |= (1UL << (bBitIndex));   // write 1
+      bBitIndex++;
+    }
+    else if (__HAL_TIM_GET_COUNTER(&htim16) > 1000)
+    {
+      bRemote_temp &= ~(1UL << (bBitIndex));  // write 0
+      bBitIndex++;
+    }
+    if(bBitIndex == 32)
+    {
+      bAddrHigh = BYTE1(bRemote_temp);
+      bAddrLow = BYTE0(bRemote_temp);
+      bCmdHigh = BYTE3(bRemote_temp);
+      bCmdLow = BYTE2(bRemote_temp);
+			// if((bCmdHigh == ~bCmdLow) && (bAddrHigh == ~bAddrLow))
+      if(bAddrLow == 0x91)
+			{
+        fRemote_pressed = 1;
+			}
+      else
+      {
+        bAddrHigh = 0xFF;
+        bAddrLow = 0xFF;
+        bCmdHigh = 0xFF;
+        bCmdLow = 0xFF;
+      }
+      bBitIndex = 0;
+    }
+    __HAL_TIM_SET_COUNTER(&htim16, 0);
+  }
+}
+
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 #if 0
@@ -644,24 +692,24 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 	 if((bBLE_recv_buffer[0] == 0x55) && (bBLE_recv_buffer[1] == 0xAA))
 	 {
-		 bBLE_SPP_Flag = 1;
-		 bBLE_UART_Flag = 0;
+		 fBLE_SPP_Flag = 1;
+		 fBLE_UART_Flag = 0;
 	 }
 	 else if((bBLE_recv_buffer[0] == 'T') && (bBLE_recv_buffer[1] == 'T') && (bBLE_recv_buffer[2] == 'M') && (bBLE_recv_buffer[3] == ':'))
 	 {
-		 bBLE_UART_Flag = 1;
-		 bBLE_SPP_Flag = 0;
+		 fBLE_UART_Flag = 1;
+		 fBLE_SPP_Flag = 0;
 	 }
 	HAL_UART_Receive_IT(&huart1, bBLE_recv_temp, 1);
 	bBLE_recv_len++;
 	if(bBLE_recv_len == 0xFE) bBLE_recv_len = 0;
-//  if(bBLE_SPP_Flag)
+//  if(fBLE_SPP_Flag)
 //  {
 //    if(bBLE_recv_temp[0] == 0xAA) bBLE_recv_len = 0;
 //    else if(bBLE_recv_len >= 0) memcpy(bBLE_recv_buffer+bBLE_recv_len, bBLE_recv_temp, 1);
 //    else bBLE_recv_len = 0xFF;
 //  }
-//  else if(bBLE_UART_Flag)
+//  else if(fBLE_UART_Flag)
 //  {
 //    if(bBLE_recv_temp[0] == 'T') bBLE_recv_len++;
 //    else if(bBLE_recv_temp == 'M') bBLE_recv_len++;
@@ -673,12 +721,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 //  if((bBLE_recv_temp[0] == 'T') && (bBLE_recv_len == 0xFF))
 //  {
 //    bBLE_recv_len = 0xFD;
-//    bBLE_UART_Flag = 1;
+//    fBLE_UART_Flag = 1;
 //  }
 //  else if((bBLE_recv_temp[0] == 0x55) && (bBLE_recv_len == 0xFF))
 //  {
 //    bBLE_recv_len = 0xFF;
-//    bBLE_SPP_Flag = 1;
+//    fBLE_SPP_Flag = 1;
 //  }
 //	HAL_UART_Receive_IT(&huart1, bBLE_recv_temp, 1);
 	// bBLE_recv_len++;

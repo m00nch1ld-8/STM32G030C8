@@ -9,6 +9,9 @@
 #ifdef USE_ADC_KEY
 #include "adc_key.h"
 #endif
+#ifdef USE_IR_KEY
+#include "remote.h"
+#endif
 #include "display.h"
 #include "main.h"
 #ifdef USE_BLE_SPP_EN
