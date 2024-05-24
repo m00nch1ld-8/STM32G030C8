@@ -206,7 +206,7 @@ void pcm9211_init(void)
 		pcm9211_dir();
 		// DIT_CTRL Settings
 		pcm9211_dit();
-		// HAL_Delay(6969);
+		HAL_Delay(6969);
 		// MainOutput Settings
 		// pcm9211_mainOutput();	//dipindah setelah init finished
 	}

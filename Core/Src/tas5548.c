@@ -449,7 +449,7 @@ void tas5548_init(void)
 		// tas5548_masterVolume(soundCt.bSoundLevel);
 		// tas5548_freqCutOff(soundCt.bSoundCutOff);
 		// tas5548_polarity(soundCt.bSoundPolar);
-		HAL_Delay(6969);
+		HAL_Delay(10);
 
 		soundCt.bOutputSoundFlag = I2C_STAT_OK;
 		for(i = 0; i < 107; i++)

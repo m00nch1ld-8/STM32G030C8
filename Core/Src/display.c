@@ -13,6 +13,7 @@
 #ifdef SOUND_INPUT_PCM9211
 extern void pcm9211_mainOutput(void);
 #endif
+extern void tas5548_mode(uint8_t iMode);
 
 uint8_t binaryNum[8];
 
@@ -135,11 +136,11 @@ void finished_init(void)
 {
 	if(!fSystem_flag)
 	{
-#ifdef SOUND_OUTPUT_TAS5548
-		tas5548_mode(soundCt.bSoundMode);
-#endif
 #ifdef SOUND_INPUT_PCM9211
 		pcm9211_mainOutput();
+#endif
+#ifdef SOUND_OUTPUT_TAS5548
+		tas5548_mode(soundCt.bSoundMode);
 #endif
 		ws2812_setLED(bPos_Led_Level, 0, 0, 0);
 		ws2812_setLED(bPos_Led_CutOff, 0, 0, 0);
