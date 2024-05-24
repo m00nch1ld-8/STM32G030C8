@@ -9,6 +9,7 @@
 
 #include "config.h"
 #include "pcm9211.h"
+#include "system.h"
 
 extern I2C_HandleTypeDef hi2c2;
 HAL_StatusTypeDef	pcm9211_i2c_ack;
@@ -181,23 +182,34 @@ void pcm9211_unMute_outPort(void)
 void pcm9211_init(void)
 {
 	HAL_StatusTypeDef	ack = HAL_BUSY;
+	uint8_t i = 0;
 
 	while (ack != HAL_OK)
 	{
 		ack = HAL_I2C_IsDeviceReady(&hi2c2,PCM9211_ADDR,10,50);
+		if(ack == HAL_ERROR) i++;
+		else if(ack == HAL_BUSY) i++;
+		else if(ack == HAL_TIMEOUT) i++;
+		if(i > 9)
+		{
+			fSys_PCM_error = 1;
+		}
 	}
 
-	// System RST Control
-	pcm9211_reset();
-	// XTI Source, Clock (SCK/BCK/LRCK) Frequency Setting
-	pcm9211_clock();
-	// DIR settings
-	pcm9211_dir();
-	// DIT_CTRL Settings
-	pcm9211_dit();
-	HAL_Delay(6969);
-	// MainOutput Settings
-	pcm9211_mainOutput();
+	if(!fSys_PCM_error)
+	{
+		// System RST Control
+		pcm9211_reset();
+		// XTI Source, Clock (SCK/BCK/LRCK) Frequency Setting
+		pcm9211_clock();
+		// DIR settings
+		pcm9211_dir();
+		// DIT_CTRL Settings
+		pcm9211_dit();
+		// HAL_Delay(6969);
+		// MainOutput Settings
+		// pcm9211_mainOutput();	//dipindah setelah init finished
+	}
 }
 
 void pcm9211_output_selector(bool selOut)

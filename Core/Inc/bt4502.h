@@ -67,7 +67,7 @@ void bt4502_sendAT(uint8_t len);
 void bt4502_receiveAT(void);
 void bt4502_set_connectionInterval(uint16_t intr);
 void bt4502_get_moduleName(void);
-void bt4502_set_moduleName(char name[25]);
+void bt4502_set_moduleName(void);
 void bt4502_get_baudRate(void);
 void bt4502_set_baudRate(uint8_t baud);
 void bt4502_get_macAddress(void);

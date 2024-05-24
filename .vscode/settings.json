@@ -2,6 +2,10 @@
     "files.associations": {
         "adau_17x1.h": "c",
         "main.h": "c",
-        "bt4502.h": "c"
+        "bt4502.h": "c",
+        "system.h": "c",
+        "type.h": "c",
+        "sound.h": "c",
+        "pcm9211.h": "c"
     }
 }

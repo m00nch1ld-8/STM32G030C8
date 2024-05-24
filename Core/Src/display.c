@@ -3,10 +3,15 @@
 #include "display.h"
 #include "sound.h"
 #include "main.h"
+#include "system.h"
 
 #ifdef USE_SMARTLED_EN
 #include "rgb_smartled.h"
 // #include "signal_process.h"
+#endif
+
+#ifdef SOUND_INPUT_PCM9211
+extern void pcm9211_mainOutput(void);
 #endif
 
 uint8_t binaryNum[8];
@@ -128,14 +133,28 @@ void display_init(void)
 
 void finished_init(void)
 {
-	ws2812_setLED(bPos_Led_Level, 0, 0, 0);
-	ws2812_setLED(bPos_Led_CutOff, 0, 0, 0);
-#ifdef USE_SOUND_SHIFT_EN
-	ws2812_setLED(bPos_Led_Phase, 0, 0, 0);
-#else
-	ws2812_setLED(bPos_Led_Polar, 0, 0, 0);
+	if(!fSystem_flag)
+	{
+#ifdef SOUND_OUTPUT_TAS5548
+		tas5548_mode(soundCt.bSoundMode);
 #endif
-	ws2812_setLED(bPos_Led_Mode, 0, 0, 0);
+#ifdef SOUND_INPUT_PCM9211
+		pcm9211_mainOutput();
+#endif
+		ws2812_setLED(bPos_Led_Level, 0, 0, 0);
+		ws2812_setLED(bPos_Led_CutOff, 0, 0, 0);
+#ifdef USE_SOUND_SHIFT_EN
+		ws2812_setLED(bPos_Led_Phase, 0, 0, 0);
+#else
+		ws2812_setLED(bPos_Led_Polar, 0, 0, 0);
+#endif
+		ws2812_setLED(bPos_Led_Mode, 0, 0, 0);
+	}
+	else
+	{
+		//tunggu Sigit
+		HAL_Delay(100);
+	}
 }
 
 void display_task(void)

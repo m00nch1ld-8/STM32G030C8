@@ -564,17 +564,17 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PA_FAULT_Pin */
-  GPIO_InitStruct.Pin = PA_FAULT_Pin;
+  /*Configure GPIO pins : PA_FAULT_Pin BLE_INT_Pin */
+  GPIO_InitStruct.Pin = PA_FAULT_Pin|BLE_INT_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(PA_FAULT_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PA_OTW_Pin PA_CLIP_Pin */
-  GPIO_InitStruct.Pin = PA_OTW_Pin|PA_CLIP_Pin;
+  /*Configure GPIO pin : PA_CLIP_Pin */
+  GPIO_InitStruct.Pin = PA_CLIP_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_Init(PA_CLIP_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : IRM_Pin */
   GPIO_InitStruct.Pin = IRM_Pin;
@@ -590,7 +590,7 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : PWM_MUTE_Pin */
   GPIO_InitStruct.Pin = PWM_MUTE_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(PWM_MUTE_GPIO_Port, &GPIO_InitStruct);
 
@@ -607,12 +607,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(ADAU_DET_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : BLE_INT_Pin */
-  GPIO_InitStruct.Pin = BLE_INT_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(BLE_INT_GPIO_Port, &GPIO_InitStruct);
-
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI4_15_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI4_15_IRQn);
@@ -627,6 +621,13 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
+{
+  if(GPIO_Pin == GPIO_PIN_8)
+  {
+    fBLE_wait_reply = 0;
+  }
+}
 void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin)
 {
   if(GPIO_Pin == GPIO_PIN_6)

@@ -76,9 +76,6 @@ void Error_Handler(void);
 #define PA_FAULT_Pin GPIO_PIN_15
 #define PA_FAULT_GPIO_Port GPIOB
 #define PA_FAULT_EXTI_IRQn EXTI4_15_IRQn
-#define PA_OTW_Pin GPIO_PIN_8
-#define PA_OTW_GPIO_Port GPIOA
-#define PA_OTW_EXTI_IRQn EXTI4_15_IRQn
 #define PA_CLIP_Pin GPIO_PIN_9
 #define PA_CLIP_GPIO_Port GPIOA
 #define PA_CLIP_EXTI_IRQn EXTI4_15_IRQn
@@ -105,6 +102,7 @@ void Error_Handler(void);
 #define BLE_RX_GPIO_Port GPIOB
 #define BLE_INT_Pin GPIO_PIN_8
 #define BLE_INT_GPIO_Port GPIOB
+#define BLE_INT_EXTI_IRQn EXTI4_15_IRQn
 #define BLE_PDN_Pin GPIO_PIN_9
 #define BLE_PDN_GPIO_Port GPIOB
 

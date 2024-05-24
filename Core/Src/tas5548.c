@@ -438,18 +438,18 @@ void tas5548_init(void)
 		{
 			ack = HAL_OK;
 			soundCt.bOutputSoundFlag = I2C_STAT_TIMEOUT;
+			fSys_TAS_error = 1;
 		}
 	}
 
 	// HAL_Delay(1000);
 
-	if(ack == HAL_OK && soundCt.bOutputSoundFlag != I2C_STAT_TIMEOUT)
+	if(!fSys_TAS_error)
 	{
 		// tas5548_masterVolume(soundCt.bSoundLevel);
 		// tas5548_freqCutOff(soundCt.bSoundCutOff);
 		// tas5548_polarity(soundCt.bSoundPolar);
-//		tas5548_mode(soundCt.bSoundMode);
-		HAL_Delay(10);
+		HAL_Delay(6969);
 
 		soundCt.bOutputSoundFlag = I2C_STAT_OK;
 		for(i = 0; i < 107; i++)
@@ -457,6 +457,7 @@ void tas5548_init(void)
 			HAL_I2C_Mem_Write_Const(&hi2c2,TAS5548_WRITE+TAS5548_ADDR,tas5548_reg_defaults[i].addr,I2C_MEMADD_SIZE_8BIT,tas5548_reg_defaults[i].isi,tas5548_reg_defaults[i].size,100);
 			HAL_Delay(4);
 		}
+		// tas5548_mode(soundCt.bSoundMode);
 	}
 }
 
@@ -516,8 +517,8 @@ void tas5548_freqCutOff(uint8_t fCutOff)
 	CH1_BIQUAD3_FILTER[19] = CH1_BIQUAD4_FILTER[19] = CH1_BIQUAD5_FILTER[19] = FREQ_CUTOFF[fCutOff][11];
 #endif
 
-	for(uint8_t i = 10; i < 16; i++)
-	{
+	// for(uint8_t i = 10; i < 16; i++)
+	// {
 		HAL_I2C_Mem_Write_Const(&hi2c2,TAS5548_WRITE+TAS5548_ADDR,tas5548_reg_defaults[10].addr,I2C_MEMADD_SIZE_8BIT,tas5548_reg_defaults[10].isi,tas5548_reg_defaults[10].size,100);
 		HAL_Delay(4);
 		HAL_I2C_Mem_Write(&hi2c2,TAS5548_WRITE+TAS5548_ADDR,tas5548_reg_defaults[11].addr,I2C_MEMADD_SIZE_8BIT,&TAS5548_I2C_BUF[0],tas5548_reg_defaults[11].size,100);
@@ -532,7 +533,7 @@ void tas5548_freqCutOff(uint8_t fCutOff)
 		HAL_Delay(4);
 		HAL_I2C_Mem_Write_Const(&hi2c2,TAS5548_WRITE+TAS5548_ADDR,tas5548_reg_defaults[16].addr,I2C_MEMADD_SIZE_8BIT,tas5548_reg_defaults[16].isi,tas5548_reg_defaults[16].size,100);
 		HAL_Delay(4);
-	}
+	// }
 }
 
 void tas5548_masterVolume(uint8_t mVol)

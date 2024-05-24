@@ -21,6 +21,7 @@
 #include "bt4502.h"
 #include "math.h"
 #include "string.h"
+#include "system.h"
 
 /* Private includes ----------------------------------------------------------*/
 
@@ -39,10 +40,11 @@ uint8_t bBLE_recv_buffer[0xFF];
 uint8_t bBLE_recv_final[0xFF];
 uint8_t bBLE_recv_temp[2];
 uint8_t bBLE_send_buffer[0xFF];
+char cData_Buffer[0xFF];
 uint8_t bBLE_recv_len = 0;
 uint8_t bBLE_SPP_len = 0;
 uint8_t bBLE_UART_len = 0;
-uint8_t bBLE_temp_buffer[0xFF];
+uint8_t bBLE_temp_buffer[0xFF];	//ga kepake
 sBIT_BYTE_ACCESS bBLE_flag;
 
 
@@ -74,7 +76,8 @@ uint8_t bt4502_recv_check(void)
 	}
 	else if(fBLE_UART_Flag)
 	{
-		if((bBLE_recv_temp[0] == '\n') && (bBLE_recv_len != 0))
+		if(fBLE_wait_reply == 0)
+		// if((bBLE_recv_temp[0] == '\n') && (bBLE_recv_len != 0))
 		{
 			memcpy(bBLE_recv_final, bBLE_recv_buffer, bBLE_recv_len);
 			bBLE_UART_len = bBLE_recv_len;
@@ -115,6 +118,10 @@ void bt4502_parse_reply(void)
 	else if((bBLE_recv_final[4] == 'N') && (bBLE_recv_final[5] == 'A') && (bBLE_recv_final[6] == 'M'))
 	{
 		//BLE return Module NAME
+		for(uint8_t i = 8; i < bBLE_UART_len-3; i++)
+		{
+			cData_Buffer[i-8] = bBLE_recv_final[i];
+		}
 	}
 	else if((bBLE_recv_final[4] == 'B') && (bBLE_recv_final[5] == 'P') && (bBLE_recv_final[6] == 'S') && (bBLE_recv_final[6] == '-'))
 	{
@@ -166,16 +173,20 @@ void bt4502_test_send(uint8_t buff)
 void bt4502_init(void)
 {
 	uint8_t waitReplyCount = 10;
-	char name[25] = "PHS MBUH";
-	bBLE_recv_buffer[0] = 'B';
 	HAL_UART_Receive_IT(&huart1, bBLE_recv_temp, 1);
 	bt4502_get_moduleName();
 	while(fBLE_wait_reply)
 	{
 		if(waitReplyCount)	waitReplyCount--;
+		else fSys_BLE_error = 1;
 		HAL_Delay(100);
 	}
-	bt4502_set_moduleName(name);
+	bt4502_task();
+	waitReplyCount = strcmp(cData_Buffer, "PHS WOOFER");
+	if(waitReplyCount != 0)
+	{
+		bt4502_set_moduleName();
+	}
 //	bt4502_set_connectionInterval(200);
 	bt4502_pdn_low();	//start advertisement
 }
@@ -255,7 +266,7 @@ void bt4502_get_moduleName(void)
 	bt4502_sendAT(12);
 }
 
-void bt4502_set_moduleName(char name[25])
+void bt4502_set_moduleName(void)
 {
 	bBLE_send_buffer[4] = 'R';
 	bBLE_send_buffer[5] = 'E';

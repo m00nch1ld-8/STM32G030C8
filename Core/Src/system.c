@@ -19,6 +19,7 @@
 #endif
 
 sSystem_input	sSystem_process;
+sBIT_BYTE_ACCESS bSystem_flag = 0;
 uint8_t	bSystem_tasktick;
 extern bool ledOnOff;
 extern void changeLedStat(bool onOff);

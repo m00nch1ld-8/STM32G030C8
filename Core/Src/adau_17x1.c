@@ -322,12 +322,13 @@ void adau_init(void)
 		{
 			ack = HAL_OK;
 			soundCt.bDspSoundFlag = I2C_STAT_TIMEOUT;
+			fSys_ADAU_error = 1;
 		}
 	}
 
 	// HAL_Delay(1000);
 
-	if(ack == HAL_OK && soundCt.bDspSoundFlag != I2C_STAT_TIMEOUT)
+	if(!fSys_ADAU_error)
 	{
 		soundCt.bDspSoundFlag = I2C_STAT_OK;
 		for(i = 0; i < 130; i++)
