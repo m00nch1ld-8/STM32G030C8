@@ -31,6 +31,9 @@
 	#endif
 
 	#define USE_BLE_SPP_EN
+	#ifdef USE_BLE_SPP_EN
+		#define USE_CIRCULAR_BUFF_EN
+	#endif
 
 	#define USE_BREAKPOINT_EN
 

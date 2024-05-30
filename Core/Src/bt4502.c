@@ -22,6 +22,7 @@
 #include "math.h"
 #include "string.h"
 #include "system.h"
+#include "spp.h"
 
 /* Private includes ----------------------------------------------------------*/
 
@@ -37,8 +38,14 @@
 
 /* Private variables ---------------------------------------------------------*/
 uint8_t bBLE_recv_buffer[0xFF];
+#ifdef USE_CIRCULAR_BUFF_EN
+MCU_CIRCULAR_CONTEXT BLE_CircularCtx;
+uint8_t bBLE_CircularBuff[MAX_DATA_BUFF];
+uint8_t bBLE_recv_final[32];
+#else
 uint8_t bBLE_recv_final[0xFF];
-uint8_t bBLE_recv_temp[2];
+#endif
+uint8_t bBLE_recv_temp[1];
 uint8_t bBLE_send_buffer[0xFF];
 char cData_Buffer[0xFF];
 uint8_t bBLE_recv_len = 0;
@@ -61,6 +68,71 @@ GPIO_PinState bt4502_read_int(void)
 
 uint8_t bt4502_recv_check(void)
 {
+#ifdef USE_CIRCULAR_BUFF_EN
+	uint8_t dataTemp;
+	static int8_t recvIndex = -4;
+	uint16_t dataSize = MCUCircular_GetDataLen(&BLE_CircularCtx);
+
+	while(dataSize > 0)
+	{
+		if(MCUCircular_GetData(&BLE_CircularCtx, &dataTemp, 1) == 0)
+		{
+			return 0;
+		}
+		dataSize = MCUCircular_GetSpaceLen(&BLE_CircularCtx);
+		if(recvIndex == -4)
+		{
+			if(dataTemp == 0x0D)
+			{
+				recvIndex = -1;
+			}
+			else if(dataTemp == 'T')
+			{
+				recvIndex = -3;
+			}
+		}
+		else if(recvIndex == -3)
+		{
+			if(dataTemp == 'T')
+			{
+				recvIndex = -2;
+			}
+		}
+		else if(recvIndex == -2)
+		{
+			if(dataTemp == 'M')
+			{
+				recvIndex = -1;
+			}
+		}
+		else if(recvIndex == -1)
+		{
+			if(dataTemp == 0x0A)
+			{
+				recvIndex = 0;
+			}
+			else if(dataTemp == ':')
+			{
+				recvIndex = 0;
+			}
+		}
+		else
+		{
+			bBLE_recv_final[recvIndex++] = dataTemp;
+			if(bBLE_recv_final[recvIndex-1] == 0x0A)
+			{
+				recvIndex = -4;
+				return 2;
+			}
+			if((bBLE_recv_final[recvIndex-1] == 0x00) && (bBLE_recv_final[recvIndex-2] == 0x0A) && (bBLE_recv_final[recvIndex-2] == 0x0D))
+			{
+				recvIndex = -4;
+				return 1;
+			}
+		}
+	}
+	return 0;
+#else		//USE_CIRCULAR_BUFF_EN
 	if(fBLE_SPP_Flag)
 	{
 		if((bBLE_recv_temp[0] == '\n') && (bBLE_recv_len != 0))
@@ -89,6 +161,7 @@ uint8_t bt4502_recv_check(void)
 		}
 	}
 	return 0;
+#endif		//USE_CIRCULAR_BUFF_EN
 }
 
 void bt4502_parse_reply(void)
@@ -145,17 +218,20 @@ void bt4502_task(void)
 {
     uint8_t asdfgh = 0;
 
-    asdfgh = bt4502_recv_check();
-    if(asdfgh == 1)
-    {
-        // saat UART selesai;
-        bt4502_parse_reply();
-    }
-    else if(asdfgh == 2)
-    {
-        // saat SPP selesai
-        SlaveStateCtrl();
-    }
+	if(MCUCircular_GetDataLen(&BLE_CircularCtx) != 0)
+	{
+		asdfgh = bt4502_recv_check();
+		if(asdfgh == 1)
+		{
+			// saat UART selesai;
+			bt4502_parse_reply();
+		}
+		else if(asdfgh == 2)
+		{
+			// saat SPP selesai
+			SlaveStateCtrl();
+		}
+	}
 }
 
 void bt4502_test_send(uint8_t buff)
@@ -173,6 +249,9 @@ void bt4502_test_send(uint8_t buff)
 void bt4502_init(void)
 {
 	uint8_t waitReplyCount = 10;
+#ifdef USE_CIRCULAR_BUFF_EN
+	MCUCircular_Config(&BLE_CircularCtx, bBLE_CircularBuff, MAX_DATA_BUFF);
+#endif
 	HAL_UART_Receive_IT(&huart1, bBLE_recv_temp, 1);
 	bt4502_get_moduleName();
 	while(fBLE_wait_reply)
@@ -217,14 +296,15 @@ void bt4502_receiveAT(void)
 void bt4502_set_connectionInterval(uint16_t intr)
 {
 	uint16_t sq = 4;
-	uint8_t len = 4, pos = 0, i = 0;
+	uint8_t len = 4, pos = 0, i = 3;
 	uint8_t buff[4];
 
-	for(i = 3; i >= 0; i--)
+	while(i)
 	{
 		sq = pow(10,i);
 		buff[i] = (intr/sq)%10;
 		if(buff[i] != 0 && pos == 0) pos = i+1;
+		i--;
 	}
 	bBLE_send_buffer[len++] = 'C';
 	bBLE_send_buffer[len++] = 'I';
@@ -301,14 +381,15 @@ void bt4502_get_baudRate(void)
 void bt4502_set_baudRate(uint8_t baud)
 {
 	uint16_t sq = 4;
-	uint8_t len = 4, pos = 0, i = 0;
+	uint8_t len = 4, pos = 0, i = 5;
 	uint8_t buff[6];
 
-	for(i = 5; i >= 0; i--)
+	while(i)
 	{
 		sq = pow(10,i);
 		buff[i] = (baud/sq)%10;
 		if(buff[i] != 0 && pos == 0) pos = i+1;
+		i--;
 	}
 	bBLE_send_buffer[len++] = 'B';
 	bBLE_send_buffer[len++] = 'P';
@@ -382,14 +463,15 @@ void bt4502_reset(void)
 void bt4502_set_advertisePeriod(uint8_t adv)
 {
 	uint16_t sq = 4;
-	uint8_t len = 4, pos = 0, i = 0;
+	uint8_t len = 4, pos = 0, i = 1;
 	uint8_t buff[2];
 
-	for(i = 1; i >= 0; i--)
+	while(i)
 	{
 		sq = pow(10,i);
 		buff[i] = (adv/sq)%10;
 		if(buff[i] != 0 && pos == 0) pos = i+1;
+		i--;
 	}
 	bBLE_send_buffer[len++] = 'A';
 	bBLE_send_buffer[len++] = 'D';
@@ -525,14 +607,15 @@ void bt4502_set_delay(uint8_t delay)
 void bt4502_battery(uint8_t batt)
 {
 	uint16_t sq = 4;
-	uint8_t len = 4, pos = 0, i = 0;
+	uint8_t len = 4, pos = 0, i = 2;
 	uint8_t buff[3];
 
-	for(i = 2; i >= 0; i--)
+	while(i)
 	{
 		sq = pow(10,i);
 		buff[i] = (batt/sq)%10;
 		if(buff[i] != 0 && pos == 0) pos = i+1;
+		i--;
 	}
 	bBLE_send_buffer[len++] = 'B';
 	bBLE_send_buffer[len++] = 'S';

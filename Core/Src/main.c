@@ -677,18 +677,9 @@ void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin)
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-#if 0
-	 memcpy(bBLE_recv_buffer+bBLE_recv_len, bBLE_recv_temp, 1);
-	// if(bBLE_recv_len == 0xFE) bBLE_recv_len = 0;
-//	if(bBLE_recv_len != 0)
-//	{
-//		memcpy(bBLE_recv_buffer+bBLE_recv_len, bBLE_recv_temp, 1);
-//	}
-	HAL_UART_Receive_IT(&huart1, bBLE_recv_temp, 1);
-	bBLE_recv_len++;
-	if(bBLE_recv_len == 0xFE) bBLE_recv_len = 0;
-
-#else
+#ifdef USE_CIRCULAR_BUFF_EN
+    MCUCircular_PutData(&BLE_CircularCtx, bBLE_recv_temp, 1);
+#else   //USE_CIRCULAR_BUFF_EN
 	 memcpy(bBLE_recv_buffer+bBLE_recv_len, bBLE_recv_temp, 1);
 
 	 if((bBLE_recv_buffer[0] == 0x55) && (bBLE_recv_buffer[1] == 0xAA))
@@ -701,38 +692,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		 fBLE_UART_Flag = 1;
 		 fBLE_SPP_Flag = 0;
 	 }
-	HAL_UART_Receive_IT(&huart1, bBLE_recv_temp, 1);
 	bBLE_recv_len++;
 	if(bBLE_recv_len == 0xFE) bBLE_recv_len = 0;
-//  if(fBLE_SPP_Flag)
-//  {
-//    if(bBLE_recv_temp[0] == 0xAA) bBLE_recv_len = 0;
-//    else if(bBLE_recv_len >= 0) memcpy(bBLE_recv_buffer+bBLE_recv_len, bBLE_recv_temp, 1);
-//    else bBLE_recv_len = 0xFF;
-//  }
-//  else if(fBLE_UART_Flag)
-//  {
-//    if(bBLE_recv_temp[0] == 'T') bBLE_recv_len++;
-//    else if(bBLE_recv_temp == 'M') bBLE_recv_len++;
-//    else if(bBLE_recv_temp == ':') bBLE_recv_len++;
-//    else if(bBLE_recv_len >= 0) memcpy(bBLE_recv_buffer+bBLE_recv_len, bBLE_recv_temp, 1);
-//    else bBLE_recv_len = 0xFF;
-//  }
-//
-//  if((bBLE_recv_temp[0] == 'T') && (bBLE_recv_len == 0xFF))
-//  {
-//    bBLE_recv_len = 0xFD;
-//    fBLE_UART_Flag = 1;
-//  }
-//  else if((bBLE_recv_temp[0] == 0x55) && (bBLE_recv_len == 0xFF))
-//  {
-//    bBLE_recv_len = 0xFF;
-//    fBLE_SPP_Flag = 1;
-//  }
-//	HAL_UART_Receive_IT(&huart1, bBLE_recv_temp, 1);
-	// bBLE_recv_len++;
-	// if(bBLE_recv_len == 0xFE) bBLE_recv_len = 0;
-#endif
+#endif  //USE_CIRCULAR_BUFF_EN
+	HAL_UART_Receive_IT(&huart1, bBLE_recv_temp, 1);
 }
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)

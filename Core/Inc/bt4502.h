@@ -27,16 +27,21 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "system.h"
+#include "config.h"
 #include "main.h"
 #include "type.h"
+#include "mcu_circular_buf.h"
 
 /* Exported types ------------------------------------------------------------*/
 
 
 /* Exported constants --------------------------------------------------------*/
+#ifdef USE_CIRCULAR_BUFF_EN
+extern MCU_CIRCULAR_CONTEXT BLE_CircularCtx;
+#define MAX_DATA_BUFF									0xFF
+#endif
 extern uint8_t bBLE_recv_buffer[0xFF];
-extern uint8_t bBLE_recv_temp[2];
+extern uint8_t bBLE_recv_temp[1];
 extern uint8_t bBLE_recv_len;
 extern sBIT_BYTE_ACCESS bBLE_flag;
 

@@ -22,6 +22,7 @@
 #include "spp_app_proc.h"
 #include "string.h"
 #include "type.h"
+#include "config.h"
 
 
 /* Private includes ----------------------------------------------------------*/
@@ -232,6 +233,32 @@ uint8_t SppCheck(void)
 {
 	uint8_t compare = 0;
 	uint8_t lenTemp;
+#ifdef USE_CIRCULAR_BUFF_EN
+// bBLE_recv_final[0]	: data length
+// bBLE_recv_final[1]	: CMD High
+// bBLE_recv_final[2]	: CMD Low
+// bBLE_recv_final[3]	: data jika ada, jika tidak checksum
+	compare = bBLE_recv_final[0] + bBLE_recv_final[1] + bBLE_recv_final[2];
+	lenTemp = bBLE_recv_final[0];
+
+	while(lenTemp)
+	{
+		compare += bBLE_recv_final[2 + lenTemp];
+		lenTemp--;
+	}
+
+	compare = 0 - compare;
+	lenTemp = bBLE_recv_final[2];
+
+	if(compare == bBLE_recv_final[3+lenTemp])
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+#else		//USE_CIRCULAR_BUFF_EN
 // bBLE_recv_final[0]	: 0x55
 // bBLE_recv_final[1]	: 0xAA
 // bBLE_recv_final[2]	: data length
@@ -258,6 +285,7 @@ uint8_t SppCheck(void)
 	{
 		return 0;
 	}
+#endif		//USE_CIRCULAR_BUFF_EN
 }
 
 void SlaveStateCtrl(void)

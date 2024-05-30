@@ -6,6 +6,8 @@
         "system.h": "c",
         "type.h": "c",
         "sound.h": "c",
-        "pcm9211.h": "c"
+        "pcm9211.h": "c",
+        "config.h": "c",
+        "spp_app_proc.h": "c"
     }
 }
